@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useScenario } from '../hooks/useScenario';
 import { useAuth } from '../hooks/useAuth';
 import { getInsightCopy } from '../data/insights';
+import { supabase } from '../lib/supabase';
 import ScenarioCard from '../components/scenario/ScenarioCard';
 import OptionButton from '../components/scenario/OptionButton';
 import Button from '../components/ui/Button';
@@ -39,15 +40,22 @@ export default function Home() {
       const insight = getInsightCopy(selectedOptionData.pattern, scenario.category);
 
       if (user) {
-        // Save to Supabase - placeholder for now
-        console.log('Would save to Supabase:', {
-          user_id: user.id,
-          scenario_id: scenario.id,
-          selected_option_id: selectedOption,
-          pattern_detected: selectedOptionData.pattern,
-          category: scenario.category,
-          insight_copy: insight,
-        });
+        // Save to Supabase
+        const { error } = await supabase
+          .from('user_responses')
+          .insert({
+            user_id: user.id,
+            scenario_id: scenario.id,
+            selected_option_id: selectedOption,
+            pattern_detected: selectedOptionData.pattern,
+            category: scenario.category,
+            insight_copy: insight,
+          });
+
+        if (error) {
+          console.error('Error saving to Supabase:', error);
+          throw error;
+        }
       } else {
         // Save to localStorage
         const responses = JSON.parse(localStorage.getItem('pm_guest_responses') || '[]');
