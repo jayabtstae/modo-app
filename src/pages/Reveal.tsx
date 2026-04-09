@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { getPattern } from '../data/patterns';
+import type { PatternType } from '../types';
 import RevealCard from '../components/scenario/RevealCard';
 import Button from '../components/ui/Button';
 
@@ -11,7 +13,7 @@ export default function Reveal() {
   const [showShare, setShowShare] = useState(false);
 
   const state = location.state as {
-    pattern: string;
+    pattern: PatternType;
     category: string;
     insight: string;
   } | null;
@@ -24,6 +26,8 @@ export default function Reveal() {
 
   if (!state) return null;
 
+  const patternDefinition = getPattern(state.pattern);
+
   const handleShare = () => {
     setShowShare(true);
   };
@@ -34,7 +38,7 @@ export default function Reveal() {
 
   return (
     <div className="relative min-h-screen bg-background">
-      <RevealCard pattern={state.pattern} category={state.category} insight={state.insight} />
+      <RevealCard pattern={patternDefinition} category={state.category} insight={state.insight} />
 
       <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3">
         <Button onClick={handleShare} variant="secondary" className="w-full">

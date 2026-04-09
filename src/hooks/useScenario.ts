@@ -12,7 +12,11 @@ interface ScenarioState {
   seenIds: string[];
 }
 
-export function useScenario() {
+type ScenarioResult = ScenarioState & {
+  markAsSeen: (scenarioId: string) => void;
+};
+
+export function useScenario(): ScenarioResult {
   const { user, isLoading } = useAuth();
   const [state, setState] = useState<ScenarioState>({
     scenario: null,
@@ -75,5 +79,16 @@ export function useScenario() {
     loadScenario();
   }, [user, isLoading]);
 
-  return state;
+  const markAsSeen = (scenarioId: string) => {
+    setState((current) => ({
+      ...current,
+      seenIds: current.seenIds.includes(scenarioId) ? current.seenIds : [...current.seenIds, scenarioId],
+      guestCount: current.guestCount + 1,
+    }));
+  };
+
+  return {
+    ...state,
+    markAsSeen,
+  };
 }
